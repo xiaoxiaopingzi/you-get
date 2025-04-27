@@ -6,7 +6,6 @@ from ..common import *
 from .universal import *
 from .dailymotion import dailymotion_download
 from .vimeo import vimeo_download
-from .vine import vine_download
 
 def tumblr_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     if re.match(r'https?://\d+\.media\.tumblr\.com/', url):
@@ -35,7 +34,7 @@ def tumblr_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
                      post_data_raw='{"eu_resident":true,"gdpr_is_acceptable_age":true,"gdpr_consent_core":true,"gdpr_consent_first_party_ads":true,"gdpr_consent_third_party_ads":true,"gdpr_consent_search_history":true,"redirect_to":"%s","gdpr_reconsent":false}' % url)
         page = get_html(url, faker=True)
 
-    html = parse.unquote(page).replace('\/', '/')
+    html = parse.unquote(page).replace(r'\/', '/')
     feed = r1(r'<meta property="og:type" content="tumblr-feed:(\w+)" />', html)
 
     if feed in ['photo', 'photoset', 'entry'] or feed is None:
@@ -82,16 +81,16 @@ def tumblr_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
             except: pass
 
         if tuggles:
-            size = sum([tuggles[t]['size'] for t in tuggles])
-            print_info(site_info, page_title, None, size)
+            #size = sum([tuggles[t]['size'] for t in tuggles])
+            #print_info(site_info, page_title, None, size)
 
-            if not info_only:
-                for t in tuggles:
-                    title = tuggles[t]['title']
-                    ext = tuggles[t]['ext']
-                    size = tuggles[t]['size']
-                    url = tuggles[t]['url']
-                    print_info(site_info, title, ext, size)
+            for t in tuggles:
+                title = '[tumblr] ' + tuggles[t]['title']
+                ext = tuggles[t]['ext']
+                size = tuggles[t]['size']
+                url = tuggles[t]['url']
+                print_info(site_info, title, ext, size)
+                if not info_only:
                     download_urls([url], title, ext, size,
                                   output_dir=output_dir)
             return
@@ -124,9 +123,6 @@ def tumblr_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
                 return
             elif re.search(r'dailymotion\.com', iframe_url):
                 dailymotion_download(iframe_url, output_dir, merge=merge, info_only=info_only, **kwargs)
-                return
-            elif re.search(r'vine\.co', iframe_url):
-                vine_download(iframe_url, output_dir, merge=merge, info_only=info_only, **kwargs)
                 return
             else:
                 iframe_html = get_content(iframe_url)

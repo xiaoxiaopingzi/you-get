@@ -32,7 +32,7 @@ class AcFun(VideoExtractor):
                 self.title += " - " + [p.get('title') for p in video_list if p.get('id') == vid][0]
             currentVideoInfo = json_data.get('currentVideoInfo')
 
-        elif re.match("https?://[^\.]*\.*acfun\.[^\.]+/bangumi/aa(\d+)", self.url):
+        elif re.match(r"https?://[^\.]*\.*acfun\.[^\.]+/bangumi/aa(\d+)", self.url):
             html = get_content(self.url, headers=fake_headers)
             tag_script = match1(html, r'<script>\s*window\.pageInfo([^<]+)</script>')
             json_text = tag_script[tag_script.find('{') : tag_script.find('};') + 1]
@@ -43,7 +43,7 @@ class AcFun(VideoExtractor):
             currentVideoInfo = json_data.get('currentVideoInfo')
 
         else:
-            raise NotImplemented            
+            raise NotImplementedError()         
 
         if 'ksPlayJson' in currentVideoInfo:
             durationMillis = currentVideoInfo['durationMillis']
@@ -180,7 +180,7 @@ class AcFun(VideoExtractor):
                 title += " - " + [p.get('title') for p in video_list if p.get('id') == vid][0]
             currentVideoInfo = json_data.get('currentVideoInfo')
             m3u8_url = getM3u8UrlFromCurrentVideoInfo(currentVideoInfo)
-        elif re.match("https?://[^\.]*\.*acfun\.[^\.]+/bangumi/aa(\d+)", url):
+        elif re.match(r'https?://[^\.]*\.*acfun\.[^\.]+/bangumi/aa(\d+)', url):
             html = get_content(url, headers=fake_headers)
             tag_script = match1(html, r'<script>\s*window\.pageInfo([^<]+)</script>')
             json_text = tag_script[tag_script.find('{') : tag_script.find('};') + 1]
@@ -193,7 +193,7 @@ class AcFun(VideoExtractor):
             m3u8_url = getM3u8UrlFromCurrentVideoInfo(currentVideoInfo)
 
         else:
-            raise NotImplemented
+            raise NotImplementedError()
 
         assert title and m3u8_url
         title = unescape_html(title)

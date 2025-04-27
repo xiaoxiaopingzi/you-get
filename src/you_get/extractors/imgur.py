@@ -13,9 +13,11 @@ class Imgur(VideoExtractor):
     ]
 
     def prepare(self, **kwargs):
+        self.ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/123.0.2420.97'
+
         if re.search(r'imgur\.com/a/', self.url):
             # album
-            content = get_content(self.url)
+            content = get_content(self.url, headers=fake_headers)
             album = match1(content, r'album\s*:\s*({.*}),') or \
                     match1(content, r'image\s*:\s*({.*}),')
             album = json.loads(album)
@@ -39,7 +41,7 @@ class Imgur(VideoExtractor):
 
         elif re.search(r'i\.imgur\.com/', self.url):
             # direct image
-            _, container, size = url_info(self.url)
+            _, container, size = url_info(self.url, faker=True)
             self.streams = {
                 'original': {
                     'src': [self.url],
@@ -51,9 +53,10 @@ class Imgur(VideoExtractor):
 
         else:
             # gallery image
-            content = get_content(self.url)
-            url = match1(content, r'(https?://i.imgur.com/[^"]+)')
-            _, container, size = url_info(url)
+            content = get_content(self.url, headers=fake_headers)
+            url = match1(content, r'meta property="og:video"[^>]+(https?://i.imgur.com/[^"?]+)') or \
+                match1(content, r'meta property="og:image"[^>]+(https?://i.imgur.com/[^"?]+)')
+            _, container, size = url_info(url, headers={'User-Agent': fake_headers['User-Agent']})
             self.streams = {
                 'original': {
                     'src': [url],
